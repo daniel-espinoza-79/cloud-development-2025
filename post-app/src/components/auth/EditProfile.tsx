@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
 import { userProfileService } from "@/services/UserProfileService";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Alert } from "@/components/ui/Alert";
-import { ArrowLeft, Save, User, MapPin, Calendar, Phone } from "lucide-react";
+import { ArrowLeft, Save, User, MapPin, Calendar } from "lucide-react";
 import {
   userProfileSchema,
   type UserProfileFormData,
 } from "@/schemas/user-profile.schema";
 import type { UpdateUserProfileData } from "@/types/auth.types";
+import { Input } from "../ui/Input";
 
 const EditProfilePage = () => {
   const navigate = useNavigate();
@@ -24,9 +26,8 @@ const EditProfilePage = () => {
   const user = authState.user;
 
   const {
-    control,
     handleSubmit,
-    setValue,
+    register,
     watch,
     formState: { errors, isDirty },
     reset,
@@ -57,11 +58,6 @@ const EditProfilePage = () => {
       setSuccess(null);
     }
   }, [isDirty]);
-
-  const formatDateForInput = (date: Date | undefined): string => {
-    if (!date) return "";
-    return date.toISOString().split("T")[0];
-  };
 
   const calculateAge = (birthDate: Date | undefined): number | null => {
     if (!birthDate) return null;
@@ -116,7 +112,7 @@ const EditProfilePage = () => {
       setSuccess("Profile updated successfully");
       setTimeout(() => {
         navigate("/profile");
-      }, 2000);
+      }, 200);
     } catch (error: any) {
       setError(error.message || "Error updating profile");
     } finally {
@@ -192,100 +188,38 @@ const EditProfilePage = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Personal Information
           </h3>
-          <div className="space-y-2">
-            <label
-              htmlFor="address"
-              className="flex items-center gap-2 text-sm font-medium text-gray-700"
-            >
-              <MapPin className="h-4 w-4" />
-              Address
-            </label>
-            <Controller
-              name="address"
-              control={control}
-              render={({ field }) => (
-                <input
-                  id="address"
-                  type="text"
-                  {...field}
-                  value={field.value || ""}
-                  placeholder="Enter your address"
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.address ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-              )}
-            />
-            {errors.address && (
-              <p className="text-sm text-red-600">{errors.address.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="birthDate"
-              className="flex items-center gap-2 text-sm font-medium text-gray-700"
-            >
-              <Calendar className="h-4 w-4" />
-              Birth Date
-            </label>
-            <Controller
-              name="birthDate"
-              control={control}
-              render={({ field }) => (
-                <input
-                  id="birthDate"
-                  type="date"
-                  value={formatDateForInput(field.value)}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const date = value ? new Date(value) : undefined;
-                    field.onChange(date);
-                  }}
-                  max={new Date().toISOString().split("T")[0]}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.birthDate ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-              )}
-            />
-            {errors.birthDate && (
-              <p className="text-sm text-red-600">{errors.birthDate.message}</p>
-            )}
-            {watchedBirthDate && (
-              <p className="text-sm text-gray-500">
-                Age: {calculateAge(watchedBirthDate)} years old
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="phone"
-              className="flex items-center gap-2 text-sm font-medium text-gray-700"
-            >
-              <Phone className="h-4 w-4" />
-              Phone
-            </label>
-            <Controller
-              name="phone"
-              control={control}
-              render={({ field }) => (
-                <input
-                  id="phone"
-                  type="tel"
-                  {...field}
-                  value={field.value || ""}
-                  placeholder="Enter your phone number"
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.phone ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-              )}
-            />
-            {errors.phone && (
-              <p className="text-sm text-red-600">{errors.phone.message}</p>
-            )}
-          </div>
+          <Input
+            id="address"
+            label="Address"
+            leftIcon={<MapPin className="h-4 w-4" />}
+            type="text"
+            placeholder="Enter your address"
+            {...register("address")}
+            error={errors.address?.message}
+          />
+          <Input
+            id="birthDate"
+            label="Birth Date"
+            leftIcon={<Calendar className="h-4 w-4" />}
+            type="date"
+            placeholder="Enter your address"
+            {...register("birthDate")}
+            error={errors.birthDate?.message}
+          />
+          {watchedBirthDate && (
+            <p className="text-sm text-gray-500">
+              Age: {calculateAge(watchedBirthDate)} years old
+            </p>
+          )}
+          <Input
+            id="phone"
+            label="Phone"
+            leftIcon={<Calendar className="h-4 w-4" />}
+            type="tel"
+            placeholder="Enter Phone number"
+            {...register("phone")}
+            error={errors.phone?.message}
+          />
           <div className="flex gap-4 pt-4">
             <Button
               type="submit"

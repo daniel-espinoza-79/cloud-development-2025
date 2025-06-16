@@ -22,12 +22,12 @@ export const DESIGN_TOKENS = {
 export const BUTTON_STYLES = {
   base: "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
   variants: {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+    primary: "bg-gray-900 text-white hover:bg-gray-700",
     secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
     outline:
       "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500",
     ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
-    destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+    destructive: "bg-red-600 text-white hover:bg-red-700",
   },
   sizes: {
     sm: "h-9 px-3 text-xs",
@@ -37,10 +37,10 @@ export const BUTTON_STYLES = {
 } as const;
 
 export const INPUT_STYLES = {
-  base: "w-full h-10 px-3 border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50",
+  base: "w-full h-10 px-3 border transition-colors disabled:opacity-50 focus:outline-none focus:ring-none",
   variants: {
     default: "border-gray-300 focus:border-blue-500",
-    error: "border-red-300 focus:border-red-500 focus:ring-red-500",
+    error: "border-red-300 focus:border-red-500",
   },
 } as const;
 

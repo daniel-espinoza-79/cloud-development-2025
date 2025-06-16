@@ -1,13 +1,14 @@
 import { AlertCircle } from "lucide-react";
 import { INPUT_STYLES, DESIGN_TOKENS } from "@/constants/design.constants";
 import { cn } from "@/utils/classNames.utils";
+import type { ReactNode } from "react";
 
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   readonly label?: string;
   readonly error?: string;
-  readonly leftIcon?: React.ReactNode;
-  readonly rightIcon?: React.ReactNode;
+  readonly leftIcon?: ReactNode;
+  readonly rightIcon?: ReactNode;
 }
 
 export const Input = ({
