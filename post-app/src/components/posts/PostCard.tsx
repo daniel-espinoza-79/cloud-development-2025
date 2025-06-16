@@ -15,7 +15,7 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
   };
 
   return (
-    <article className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:border-gray-300">
+    <article className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
       <div className="flex justify-between items-start mb-4">
         <h2 className="text-xl font-semibold text-gray-900 flex-1 line-clamp-2">
           {post.title}

@@ -4,12 +4,12 @@ import type { PostFormData } from "@/schemas/posts.schemas";
 import type { Post } from "@/types/posts.types";
 import { useState } from "react";
 import ScreenLoader from "../ui/ScreenLoader";
-import SearchBar from "../SearchBar";
 import EmptyPostList from "./EmptyPostState";
 import PostCard from "./PostCard";
 import { Dialog } from "../ui/Dialog";
 import PostForm from "./PostForm";
-import usePostsSearch from "@/hooks/usePostsSearch";
+import { Button } from "../ui/Button";
+import { Plus } from "lucide-react";
 
 const PostManagement: React.FC = () => {
   const {
@@ -18,7 +18,6 @@ const PostManagement: React.FC = () => {
   const { posts, loading, error, createPost, deletePost } = usePosts(
     user?.id || ""
   );
-  const { searchTerm, setSearchTerm, filteredPosts } = usePostsSearch(posts);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCreatePost = async (data: PostFormData) => {
@@ -51,20 +50,18 @@ const PostManagement: React.FC = () => {
 
   return (
     <>
-      <SearchBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onAddClick={() => setIsDialogOpen(true)}
-      />
+      <div className="flex justify-end pb-2">
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="h-5 w-5" />
+          Add Post
+        </Button>
+      </div>
 
-      {filteredPosts.length === 0 ? (
-        <EmptyPostList
-          hasSearchTerm={!!searchTerm}
-          onCreateClick={() => setIsDialogOpen(true)}
-        />
+      {posts.length === 0 ? (
+        <EmptyPostList onCreateClick={() => setIsDialogOpen(true)} />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPosts.map((post: Post) => (
+          {posts.map((post: Post) => (
             <PostCard key={post.id} post={post} onDelete={handleDeletePost} />
           ))}
         </div>
