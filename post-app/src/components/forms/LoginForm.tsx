@@ -4,7 +4,7 @@ import {
   defaultLoginValues,
   loginSchema,
   type LoginFormData,
-} from "@/validators/auth.schema";
+} from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Card } from "../ui/Card";

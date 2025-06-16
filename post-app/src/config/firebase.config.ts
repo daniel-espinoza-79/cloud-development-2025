@@ -30,11 +30,6 @@ googleProvider.addScope("profile");
 facebookProvider.addScope("email");
 facebookProvider.addScope("public_profile");
 
-// Emuladores para desarrollo (opcional)
-if (import.meta.env.DEV) {
-  // Descomentar para usar emuladores locales
-  // connectAuthEmulator(auth, 'http://localhost:9099');
-  // connectFirestoreEmulator(db, 'localhost', 8080);
-}
-
+/* if (import.meta.env.DEV) {}
+ */
 export default app;

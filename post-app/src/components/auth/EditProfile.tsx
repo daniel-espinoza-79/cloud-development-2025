@@ -11,7 +11,7 @@ import { ArrowLeft, Save, User, MapPin, Calendar, Phone } from "lucide-react";
 import {
   userProfileSchema,
   type UserProfileFormData,
-} from "@/validators/user-profile.schema";
+} from "@/schemas/user-profile.schema";
 import type { UpdateUserProfileData } from "@/types/auth.types";
 
 const EditProfilePage = () => {
