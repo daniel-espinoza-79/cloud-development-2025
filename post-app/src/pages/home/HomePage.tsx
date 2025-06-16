@@ -1,13 +1,15 @@
-
+import Menu from "@/components/Menu";
 import { Container } from "@/components/ui/Container";
 import { Outlet } from "react-router";
 
-
 const HomePage = () => {
   return (
-    <Container>
-      <Outlet/>
-    </Container>
+    <>
+      <Menu />
+      <Container>
+        <Outlet />
+      </Container>
+    </>
   );
 };
 
