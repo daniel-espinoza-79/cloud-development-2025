@@ -17,9 +17,9 @@ import {
   facebookProvider,
 } from "@/config/firebase.config";
 import type { User, SocialProvider } from "@/types/auth.types";
+import { userProfileService } from "./UserProfileService";
 
 export class FirebaseAuthService {
-
   async registerWithEmail(
     name: string,
     email: string,
@@ -33,12 +33,11 @@ export class FirebaseAuthService {
         displayName: name,
       });
 
-      return this.mapFirebaseUserToUser(userCredential.user);
+      return await this.mapFirebaseUserToUser(userCredential.user);
     } catch (error: any) {
       throw this.createAuthError(error);
     }
   }
-
 
   async loginWithEmail(email: string, password: string): Promise<User> {
     try {
@@ -48,7 +47,7 @@ export class FirebaseAuthService {
         password
       );
 
-      return this.mapFirebaseUserToUser(userCredential.user);
+      return await this.mapFirebaseUserToUser(userCredential.user);
     } catch (error: any) {
       throw this.createAuthError(error);
     }
@@ -59,12 +58,11 @@ export class FirebaseAuthService {
       const authProvider = this.getFirebaseProvider(provider);
       const result: UserCredential = await signInWithPopup(auth, authProvider);
 
-      return this.mapFirebaseUserToUser(result.user);
+      return await this.mapFirebaseUserToUser(result.user);
     } catch (error: any) {
       throw this.createAuthError(error);
     }
   }
-
 
   async linkProvider(provider: SocialProvider): Promise<User> {
     try {
@@ -72,7 +70,6 @@ export class FirebaseAuthService {
       if (!currentUser) {
         throw new Error("There is no user logged in");
       }
-
 
       const isAlreadyLinked = currentUser.providerData.some(
         (p) => p.providerId === this.getProviderString(provider)
@@ -87,7 +84,7 @@ export class FirebaseAuthService {
       const authProvider = this.getFirebaseProvider(provider);
       const result = await linkWithPopup(currentUser, authProvider);
 
-      return this.mapFirebaseUserToUser(result.user);
+      return await this.mapFirebaseUserToUser(result.user);
     } catch (error: any) {
       throw this.createAuthError(error);
     }
@@ -107,16 +104,15 @@ export class FirebaseAuthService {
       const providerId = this.getProviderString(provider);
       const result = await unlink(currentUser, providerId);
 
-      return this.mapFirebaseUserToUser(result);
+      return await this.mapFirebaseUserToUser(result);
     } catch (error: any) {
       throw this.createAuthError(error);
     }
   }
 
-
-  getCurrentUser(): User | null {
+  async getCurrentUser(): Promise<User | null> {
     const firebaseUser = auth.currentUser;
-    return firebaseUser ? this.mapFirebaseUserToUser(firebaseUser) : null;
+    return firebaseUser ? await this.mapFirebaseUserToUser(firebaseUser) : null;
   }
 
   async logout(): Promise<void> {
@@ -127,16 +123,35 @@ export class FirebaseAuthService {
     }
   }
 
+  private async mapFirebaseUserToUser(
+    firebaseUser: FirebaseUser
+  ): Promise<User> {
+    try {
+      const profile = await userProfileService.ensureUserProfile(
+        firebaseUser.uid
+      );
 
-  private mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {
-    return {
-      id: firebaseUser.uid,
-      email: firebaseUser.email || "",
-      name: firebaseUser.displayName || "",
-      avatar: firebaseUser.photoURL || undefined,
-      providers: this.mapFirebaseProviders(firebaseUser.providerData),
-      createdAt: new Date(firebaseUser.metadata.creationTime || Date.now()),
-    };
+      return {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || "",
+        name: firebaseUser.displayName || "",
+        avatar: firebaseUser.photoURL || undefined,
+        providers: this.mapFirebaseProviders(firebaseUser.providerData),
+        createdAt: new Date(firebaseUser.metadata.creationTime || Date.now()),
+        profile,
+      };
+    } catch (error) {
+      console.error("Error mapeando usuario:", error);
+      return {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || "",
+        name: firebaseUser.displayName || "",
+        avatar: firebaseUser.photoURL || undefined,
+        providers: this.mapFirebaseProviders(firebaseUser.providerData),
+        createdAt: new Date(firebaseUser.metadata.creationTime || Date.now()),
+        profile: undefined,
+      };
+    }
   }
 
   private mapFirebaseProviders(providerData: any[]): any[] {

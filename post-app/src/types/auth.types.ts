@@ -5,6 +5,15 @@ export interface User {
   readonly avatar?: string;
   readonly providers: readonly AuthProvider[];
   readonly createdAt: Date;
+  profile?: Profile | null;
+}
+
+export interface Profile {
+  id?: string;
+  address?: string;
+  birthDate?: Date;
+  age?: number;
+  phone?: string;
 }
 
 export interface AuthProvider {
@@ -38,6 +47,13 @@ export interface AuthContextValue {
   readonly loginWithProvider: (provider: SocialProvider) => Promise<void>;
   readonly linkProvider: (provider: SocialProvider) => Promise<void>;
   readonly unlinkProvider: (provider: SocialProvider) => Promise<void>;
+  readonly updateUserProfile: (profile: Profile) => void;
   readonly logout: () => Promise<void>;
   readonly clearError: () => void;
+}
+
+export interface UpdateUserProfileData {
+  address?: string;
+  birthDate?: Date;
+  phone?: string;
 }

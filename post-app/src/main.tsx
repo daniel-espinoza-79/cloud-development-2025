@@ -7,6 +7,8 @@ import { StrictMode } from "react";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import HomePage from "./pages/home/HomePage.tsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
+import EditProfilePage from "./components/auth/EditProfile.tsx";
+import UserProfile from "./components/auth/UserProfile.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -22,7 +24,10 @@ createRoot(document.getElementById("root")!).render(
                 <HomePage />
               </ProtectedRoute>
             }
-          ></Route>
+          >
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="profile/edit" element={<EditProfilePage />} />
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>
