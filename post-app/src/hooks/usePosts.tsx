@@ -29,14 +29,12 @@ const usePosts = (userId: string): UsePostsReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Cleanup function to reset state
   const resetState = useCallback(() => {
     setPosts([]);
     setLoading(true);
     setError(null);
   }, []);
 
-  // Refresh posts manually
   const refreshPosts = useCallback(() => {
     resetState();
   }, [resetState]);
@@ -50,7 +48,6 @@ const usePosts = (userId: string): UsePostsReturn => {
 
     resetState();
 
-    // SOLUTION 1: Use getDocs for initial load (no index required)
     const loadPostsOnce = async () => {
       try {
         const postsQuery = query(
@@ -73,7 +70,6 @@ const usePosts = (userId: string): UsePostsReturn => {
           indexError
         );
 
-        // SOLUTION 2: Fallback to query without orderBy (no index needed)
         try {
           const fallbackQuery = query(
             collection(db, "posts"),
@@ -86,11 +82,10 @@ const usePosts = (userId: string): UsePostsReturn => {
             ...doc.data(),
           })) as Post[];
 
-          // Sort manually on client-side
           const sortedPosts = fallbackData.sort((a, b) => {
             const timeA = a.createdAt?.toMillis() || 0;
             const timeB = b.createdAt?.toMillis() || 0;
-            return timeB - timeA; // Descending order (newest first)
+            return timeB - timeA; 
           });
 
           setPosts(sortedPosts);
@@ -105,7 +100,6 @@ const usePosts = (userId: string): UsePostsReturn => {
       }
     };
 
-    // SOLUTION 3: Real-time listener with error handling
     let unsubscribe: (() => void) | null = null;
 
     const setupRealtimeListener = () => {
@@ -142,7 +136,6 @@ const usePosts = (userId: string): UsePostsReturn => {
       }
     };
 
-    // Try real-time listener first, fallback to one-time fetch
     setupRealtimeListener();
 
     // Cleanup function
@@ -164,8 +157,6 @@ const usePosts = (userId: string): UsePostsReturn => {
 
     try {
       const now = Timestamp.now();
-
-      // Optimistic update - add to local state immediately
       const tempId = `temp_${Date.now()}`;
       const optimisticPost: Post = {
         id: tempId,
@@ -178,7 +169,6 @@ const usePosts = (userId: string): UsePostsReturn => {
 
       setPosts((prevPosts) => [optimisticPost, ...prevPosts]);
 
-      // Create in Firestore
       const docRef = await addDoc(collection(db, "posts"), {
         userId,
         title: data.title.trim(),
@@ -187,14 +177,12 @@ const usePosts = (userId: string): UsePostsReturn => {
         updatedAt: now,
       });
 
-      // Update the temporary post with the real ID
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.id === tempId ? { ...post, id: docRef.id } : post
         )
       );
     } catch (createError) {
-      // Remove optimistic update on error
       setPosts((prevPosts) =>
         prevPosts.filter((post) => !post.id.startsWith("temp_"))
       );
@@ -209,17 +197,13 @@ const usePosts = (userId: string): UsePostsReturn => {
       throw new Error("Post ID is required");
     }
 
-    // Store original posts for rollback
     const originalPosts = [...posts];
 
     try {
-      // Optimistic update - remove from local state immediately
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
 
-      // Delete from Firestore
       await deleteDoc(doc(db, "posts", postId));
     } catch (deleteError) {
-      // Rollback on error
       setPosts(originalPosts);
 
       console.error("Error deleting post:", deleteError);

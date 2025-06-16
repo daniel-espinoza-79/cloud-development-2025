@@ -147,7 +147,6 @@ const EditProfilePage = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
@@ -158,11 +157,8 @@ const EditProfilePage = () => {
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Edit Profile</h1>
-          <p className="text-gray-600">Update your personal information</p>
         </div>
       </div>
-
-      {/* Alerts */}
       {error && (
         <Alert variant="error" onAbort={() => setError(null)}>
           {error}
@@ -196,8 +192,6 @@ const EditProfilePage = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Personal Information
           </h3>
-
-          {/* Address Field */}
           <div className="space-y-2">
             <label
               htmlFor="address"
@@ -226,8 +220,6 @@ const EditProfilePage = () => {
               <p className="text-sm text-red-600">{errors.address.message}</p>
             )}
           </div>
-
-          {/* Birth Date Field */}
           <div className="space-y-2">
             <label
               htmlFor="birthDate"
@@ -266,7 +258,6 @@ const EditProfilePage = () => {
             )}
           </div>
 
-          {/* Phone Field */}
           <div className="space-y-2">
             <label
               htmlFor="phone"
@@ -295,8 +286,6 @@ const EditProfilePage = () => {
               <p className="text-sm text-red-600">{errors.phone.message}</p>
             )}
           </div>
-
-          {/* Action Buttons */}
           <div className="flex gap-4 pt-4">
             <Button
               type="submit"
