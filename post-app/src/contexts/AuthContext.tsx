@@ -11,6 +11,7 @@ import { useNavigate } from "react-router";
 import type {
   AuthContextValue,
   AuthState,
+  Profile,
   SocialProvider,
   User,
 } from "@/types/auth.types";
@@ -35,9 +36,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const unsubscribe = onAuthStateChanged(
       auth,
-      (firebaseUser: FirebaseUser | null) => {
+      async (firebaseUser: FirebaseUser | null) => {
         if (firebaseUser) {
-          const user = authService.getCurrentUser();
+          const user = await authService.getCurrentUser();
           setAuthState({
             user,
             isLoading: false,
@@ -169,6 +170,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateUserProfile =  (profile : Profile) => {
+   if (profile && authState.user) {
+    setAuthState((prev) => ({
+      ...prev,
+      user: {
+        ...prev.user!,
+        profile,
+      },
+    }));
+   }
+  };
+
   const unlinkProvider = async (provider: SocialProvider) => {
     clearError();
 
@@ -212,6 +225,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         unlinkProvider,
         logout,
         clearError,
+        updateUserProfile,
       }}
     >
       {children}

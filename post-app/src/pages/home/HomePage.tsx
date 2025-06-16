@@ -1,11 +1,12 @@
-import UserProfile from "@/components/auth/UserProfile";
+
 import { Container } from "@/components/ui/Container";
+import { Outlet } from "react-router";
 
 
 const HomePage = () => {
   return (
     <Container>
-      <UserProfile />
+      <Outlet/>
     </Container>
   );
 };
