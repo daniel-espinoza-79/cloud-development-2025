@@ -13,15 +13,33 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
   text-decoration: inherit;
 }
 
 a:hover {
-  color: #535bf2;
+  color: #155dfc;
 }
 
 body {
   margin: 0;
   padding: 0;
+}
+
+
+
+
+@layer utilities  {
+  .text-clip {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+
+
+@layer components{
+  .degrade-main-color {
+    @apply bg-gradient-to-br from-gray-900 to-blue-700;
+  }
 }

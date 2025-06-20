@@ -3,7 +3,7 @@ interface ScreenLoaderProps {
 }
 
 const ScreenLoader: React.FC<ScreenLoaderProps> = ({
-  message = "Cargando...",
+  message = "Loading...",
 }) => (
   <div className="min-h-[400px] flex items-center justify-center">
     <div className="text-center">

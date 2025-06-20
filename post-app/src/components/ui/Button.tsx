@@ -6,7 +6,8 @@ export type ButtonVariant =
   | "secondary"
   | "outline"
   | "ghost"
-  | "destructive";
+  | "destructive"
+  | "destructive_light";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps

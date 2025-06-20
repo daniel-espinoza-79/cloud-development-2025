@@ -11,8 +11,6 @@ import {
 import { db } from "@/config/firebase.config";
 import type {  Profile, UpdateUserProfileData } from "@/types/auth.types";
 
-
-
 export class UserProfileService {
   private readonly COLLECTION_NAME = "users-profile";
 

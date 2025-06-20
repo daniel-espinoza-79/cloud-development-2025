@@ -20,7 +20,7 @@ export const DESIGN_TOKENS = {
 } as const;
 
 export const BUTTON_STYLES = {
-  base: "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+  base: "inline-flex items-center justify-center font-medium transition-colors focus:outline-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
   variants: {
     primary: "bg-gray-900 text-white hover:bg-gray-700",
     secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
@@ -28,6 +28,8 @@ export const BUTTON_STYLES = {
       "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500",
     ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
     destructive: "bg-red-600 text-white hover:bg-red-700",
+    destructive_light:
+      "text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full p-2",
   },
   sizes: {
     sm: "h-9 px-3 text-xs",
