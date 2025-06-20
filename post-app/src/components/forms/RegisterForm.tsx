@@ -13,7 +13,7 @@ import {
   defaultRegisterValues,
   registerSchema,
   type RegisterFormData,
-} from "@/validators/auth.schema";
+} from "@/schemas/auth.schema";
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
