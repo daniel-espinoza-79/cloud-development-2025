@@ -1,5 +1,6 @@
 import React from "react";
 import { List } from "lucide-react";
+
 import { Link } from "react-router";
 
 const Menu = () => {
