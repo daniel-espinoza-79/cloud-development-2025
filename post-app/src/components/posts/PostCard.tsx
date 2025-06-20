@@ -1,37 +1,35 @@
 import type { Post } from "@/types/posts.types";
-import { Trash2 } from "lucide-react";
-import { Button } from "../ui/Button";
+import PostHeader from "./PostHeader";
 
 interface PostCardProps {
   post: Post;
-  onDelete: (postId: string) => void;
+  onDelete: (post: Post) => void;
 }
 
 const PostCard = ({ post, onDelete }: PostCardProps) => {
-  const handleDelete = () => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este post?")) {
-      onDelete(post.id);
-    }
-  };
-
   return (
-    <article className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
-      <div className="flex justify-between items-start mb-4">
-        <h2 className="text-xl font-semibold text-gray-900 flex-1 line-clamp-2">
+    <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 mb-4">
+      <PostHeader post={post} onDelete={onDelete} />
+
+      <div className="px-4 pb-3">
+        <h2 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">
           {post.title}
         </h2>
-        <Button
-          onClick={handleDelete}
-          variant="destructive"
-          title="Eliminar post"
-        >
-          <Trash2 className="h-5 w-5" />
-        </Button>
+        <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">
+          {post.content}
+        </p>
       </div>
-
-      <p className="text-gray-700 mb-6 whitespace-pre-wrap line-clamp-4">
-        {post.content}
-      </p>
+      {post.imageUrl &&
+        <div className="relative bg-gray-100">
+          <img
+            src={
+              post.imageUrl
+            }
+            alt="Post content"
+            className="w-full h-[500px] object-contain"
+          />
+        </div>
+      }
     </article>
   );
 };

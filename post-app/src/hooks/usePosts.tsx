@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/config/firebase.config";
 import type { PostFormData } from "@/schemas/posts.schemas";
 import type { Post } from "@/types/posts.types";
@@ -11,16 +12,18 @@ import {
   query,
   Timestamp,
   where,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
 import { useEffect, useState, useCallback } from "react";
+import { useAuth } from "./useAuth";
+import { fileService } from "@/services/FileService";
 
 interface UsePostsReturn {
   posts: Post[];
   loading: boolean;
   error: string | null;
   createPost: (data: PostFormData) => Promise<void>;
-  deletePost: (postId: string) => Promise<void>;
+  deletePost: (post: Post) => Promise<void>;
   refreshPosts: () => void;
 }
 
@@ -28,6 +31,7 @@ const usePosts = (userId: string): UsePostsReturn => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { authState: user } = useAuth();
 
   const resetState = useCallback(() => {
     setPosts([]);
@@ -76,16 +80,18 @@ const usePosts = (userId: string): UsePostsReturn => {
             where("userId", "==", userId)
           );
 
+
+
+
           const fallbackSnapshot = await getDocs(fallbackQuery);
           const fallbackData = fallbackSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           })) as Post[];
-
           const sortedPosts = fallbackData.sort((a, b) => {
             const timeA = a.createdAt?.toMillis() || 0;
             const timeB = b.createdAt?.toMillis() || 0;
-            return timeB - timeA; 
+            return timeB - timeA;
           });
 
           setPosts(sortedPosts);
@@ -137,8 +143,6 @@ const usePosts = (userId: string): UsePostsReturn => {
     };
 
     setupRealtimeListener();
-
-    // Cleanup function
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -161,6 +165,9 @@ const usePosts = (userId: string): UsePostsReturn => {
       const optimisticPost: Post = {
         id: tempId,
         userId,
+        username: user.user?.name ?? user.user?.email ?? userId,
+        imageUrl: data.imageUrl,
+        imageName: data.imageName,
         title: data.title.trim(),
         content: data.content.trim(),
         createdAt: now,
@@ -169,13 +176,23 @@ const usePosts = (userId: string): UsePostsReturn => {
 
       setPosts((prevPosts) => [optimisticPost, ...prevPosts]);
 
-      const docRef = await addDoc(collection(db, "posts"), {
+      let dataToSave: any = {
         userId,
         title: data.title.trim(),
+        username: user.user?.name ?? user.user?.email ?? userId,
         content: data.content.trim(),
         createdAt: now,
         updatedAt: now,
-      });
+      };
+
+      if (data.imageName) {
+        dataToSave = {
+          ...dataToSave,
+          imageUrl: data.imageUrl,
+          imageName: data.imageName,
+        };
+      }
+      const docRef = await addDoc(collection(db, "posts"), dataToSave);
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
@@ -192,10 +209,11 @@ const usePosts = (userId: string): UsePostsReturn => {
     }
   };
 
-  const deletePost = async (postId: string): Promise<void> => {
-    if (!postId || !postId.trim()) {
+  const deletePost = async (post: Post): Promise<void> => {
+    if (!post) {
       throw new Error("Post ID is required");
     }
+    const postId = post.id;
 
     const originalPosts = [...posts];
 
@@ -203,6 +221,9 @@ const usePosts = (userId: string): UsePostsReturn => {
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
 
       await deleteDoc(doc(db, "posts", postId));
+      if (post.imageUrl) {
+        await fileService.deleteImage(post.imageName);
+      }
     } catch (deleteError) {
       setPosts(originalPosts);
 

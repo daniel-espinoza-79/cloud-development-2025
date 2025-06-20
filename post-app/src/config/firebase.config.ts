@@ -4,6 +4,9 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider
 } from "firebase/auth";
+import {
+  getStorage
+} from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -14,6 +17,17 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MESUREMENT_ID,
+};
+
+
+const firebaseConfig2 = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY2,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN2,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID2,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET2,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID2,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID2,
+  measurementId: import.meta.env.VITE_FIREBASE_MESUREMENT_ID2,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -29,6 +43,13 @@ googleProvider.addScope("profile");
 
 facebookProvider.addScope("email");
 facebookProvider.addScope("public_profile");
+
+const app2 = initializeApp(firebaseConfig2, "secondary");
+
+const storage  =  getStorage(app2);
+
+export {storage};
+
 
 /* if (import.meta.env.DEV) {}
  */
