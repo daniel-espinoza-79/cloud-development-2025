@@ -157,13 +157,13 @@ const UserProfile = () => {
                   </div>
                 )}
 
-                {user.profile?.age && (
+                {user.profile?.phone && (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <Phone className="h-5 w-5 text-gray-500" />
                     <div>
-                      <p className="text-sm text-gray-500">Age</p>
+                      <p className="text-sm text-gray-500">phone</p>
                       <p className="font-medium text-gray-900">
-                        {user.profile?.age}
+                        {user.profile?.phone}
                       </p>
                     </div>
                   </div>

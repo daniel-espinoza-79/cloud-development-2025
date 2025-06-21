@@ -141,7 +141,7 @@ export class FirebaseAuthService {
         profile,
       };
     } catch (error) {
-      console.error("Error mapeando usuario:", error);
+      console.error("Error mapping user:", error);
       return {
         id: firebaseUser.uid,
         email: firebaseUser.email || "",

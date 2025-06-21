@@ -60,7 +60,7 @@ const EditProfilePage = () => {
   }, [isDirty]);
 
   const calculateAge = (birthDate: Date | undefined): number | null => {
-    if (!birthDate) return null;
+    if (!birthDate || typeof birthDate === "string") return null;
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
