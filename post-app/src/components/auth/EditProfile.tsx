@@ -31,6 +31,7 @@ const EditProfilePage = () => {
     watch,
     formState: { errors, isDirty },
     reset,
+    setValue
   } = useForm<UserProfileFormData>({
     resolver: zodResolver(userProfileSchema),
     defaultValues: {
@@ -44,9 +45,19 @@ const EditProfilePage = () => {
 
   useEffect(() => {
     if (user?.profile) {
+      let birthDate = user.profile.birthDate;
+
+      if (birthDate) {
+        const date = new Date(birthDate);
+        const year = date.getFullYear();
+        if (isNaN(date.getTime()) || year < 1900 || year > 2100) {
+          birthDate = undefined;
+        }
+      }
+
       reset({
         address: user.profile.address || "",
-        birthDate: user.profile.birthDate,
+        birthDate: birthDate,
         phone: user.profile.phone || "",
       });
     }
@@ -60,14 +71,27 @@ const EditProfilePage = () => {
   }, [isDirty]);
 
   const calculateAge = (birthDate: Date | undefined): number | null => {
-    if (!birthDate || typeof birthDate === "string") return null;
+    if (!birthDate) return null;
+
+    let date: Date;
+    if (typeof birthDate === "string") {
+      date = new Date(birthDate);
+    } else {
+      date = birthDate;
+    }
+
+    if (isNaN(date.getTime())) return null;
+
+    const year = date.getFullYear();
+    if (year < 1900 || year > new Date().getFullYear()) return null;
+
     const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
 
     if (
       monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      (monthDiff === 0 && today.getDate() < date.getDate())
     ) {
       return age - 1;
     }
@@ -118,6 +142,24 @@ const EditProfilePage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatDateForInput = (date: Date | undefined): string => {
+    if (!date) return "";
+
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      return "";
+    }
+
+    const year = date.getFullYear();
+    if (year < 1900 || year > 2100) {
+      return "";
+    }
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
   const handleBack = () => {
@@ -203,7 +245,20 @@ const EditProfilePage = () => {
             leftIcon={<Calendar className="h-4 w-4" />}
             type="date"
             placeholder="Enter your address"
-            {...register("birthDate")}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value) {
+                const [year, month, day] = value.split("-").map(Number);
+                const date = new Date(year, month - 1, day);
+
+                if (!isNaN(date.getTime()) && year >= 1900 && year <= 2100) {
+                  setValue("birthDate", date, { shouldDirty: true });
+                }
+              } else {
+                setValue("birthDate", undefined, { shouldDirty: true });
+              }
+            }}
+            value={formatDateForInput(watchedBirthDate)}
             error={errors.birthDate?.message}
           />
           {watchedBirthDate && (

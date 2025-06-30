@@ -8,6 +8,7 @@ import { Card } from "../ui/Card";
 import { Alert } from "../ui/Alert";
 import ProviderItem from "./ProviderItem";
 import AddProviderItem from "./AddProviderItem";
+import { fcmTokenService } from "@/services/fcmTokenService";
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -43,6 +44,12 @@ const UserProfile = () => {
 
   const handleEditProfile = () => {
     navigate("/profile/edit");
+  };
+
+  const onLogout = async () => {
+    localStorage.removeItem("fcm_token")
+    fcmTokenService.deleteUserToken(user.id);
+    await logout();
   };
 
   const linkedProviderTypes = user.providers.map((p) => p.type);
@@ -106,7 +113,7 @@ const UserProfile = () => {
               </Button>
               <Button
                 variant="outline"
-                onClick={logout}
+                onClick={onLogout}
                 leftIcon={<LogOut className="h-4 w-4" />}
                 isLoading={authState.isLoading}
               >
