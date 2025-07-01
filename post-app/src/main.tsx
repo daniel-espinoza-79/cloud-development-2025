@@ -10,11 +10,13 @@ import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
 import EditProfilePage from "./components/auth/EditProfile.tsx";
 import UserProfilePage from "./pages/profile/UserProfilePage.tsx";
 import PostsPage from "./pages/posts/PostsPage.tsx";
+import { RefreshPostProvider } from "./contexts/RefeshPostContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <RefreshPostProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -31,6 +33,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="profile/edit" element={<EditProfilePage />} />
           </Route>
         </Routes>
+        </RefreshPostProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

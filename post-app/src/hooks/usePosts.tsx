@@ -17,6 +17,8 @@ import {
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { fileService } from "@/services/FileService";
+import useFirebaseNotifications from "./useFirebaseNotifications";
+import { usePostsTrigger } from "@/contexts/RefeshPostContext";
 
 interface UsePostsReturn {
   posts: Post[];
@@ -32,7 +34,9 @@ const usePosts = (userId: string): UsePostsReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { authState: user } = useAuth();
+  const { triggerValue } = usePostsTrigger();
 
+  const { sendBulkNotifications } = useFirebaseNotifications();
   const resetState = useCallback(() => {
     setPosts([]);
     setLoading(true);
@@ -56,7 +60,6 @@ const usePosts = (userId: string): UsePostsReturn => {
       try {
         const postsQuery = query(
           collection(db, "posts"),
-          where("userId", "==", userId),
           orderBy("createdAt", "desc")
         );
 
@@ -79,9 +82,6 @@ const usePosts = (userId: string): UsePostsReturn => {
             collection(db, "posts"),
             where("userId", "==", userId)
           );
-
-
-
 
           const fallbackSnapshot = await getDocs(fallbackQuery);
           const fallbackData = fallbackSnapshot.docs.map((doc) => ({
@@ -148,7 +148,7 @@ const usePosts = (userId: string): UsePostsReturn => {
         unsubscribe();
       }
     };
-  }, [userId, resetState]);
+  }, [userId, resetState, triggerValue]);
 
   const createPost = async (data: PostFormData): Promise<void> => {
     if (!userId || !userId.trim()) {
@@ -193,6 +193,20 @@ const usePosts = (userId: string): UsePostsReturn => {
         };
       }
       const docRef = await addDoc(collection(db, "posts"), dataToSave);
+      console.log("Post created with ID:", docRef.id);
+
+      await sendBulkNotifications(
+        `New post from ${dataToSave.username}`,
+        dataToSave.title.length > 50
+          ? `${dataToSave.title.substring(0, 50)}...`
+          : dataToSave.title,
+        {
+          postId: docRef.id,
+          authorId: dataToSave.userId,
+          authorName: dataToSave.username,
+          type: "NEW_POST",
+        }
+      );
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
