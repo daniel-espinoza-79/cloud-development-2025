@@ -5,9 +5,11 @@ export interface Post {
   userId: string;
   username: string;
   imageUrl?: string;
-  imageName?:string;
+  imageName?: string;
   title: string;
   content: string;
+  liked?: boolean | null;
+  likesCount: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

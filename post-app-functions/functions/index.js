@@ -10,8 +10,14 @@
 const { setGlobalOptions } = require("firebase-functions");
 const { onCall } = require("firebase-functions/v2/https");
 const { onRequest } = require("firebase-functions/https");
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
+const { moderatePost } = require("./functs/moderations/postModerator");
+const {sendBulkNotification} = require("./functs/notifications/sendBulkNotifications");
+const { toggleLike } = require("./functs/likes/toogle-likes");
+const { getPosts } = require("./functs/posts/getPosts");
+const { POSTS_COLLECTION } = require("./config");
 
 admin.initializeApp();
 // For cost control, you can set the maximum number of containers that can be
@@ -28,72 +34,13 @@ setGlobalOptions({ maxInstances: 10 });
 
 
 
-const TOKENS_COLLECTION = "user_fcm_tokens";
+exports.sendBulkNotification = onCall(sendBulkNotification);
 
-exports.sendBulkNotification = onCall(async (request) => {
-  try {
-    const { title, message, senderId, data = {} } = request.data;
+exports.moderateNewPost = onDocumentCreated(
+  { document: `${POSTS_COLLECTION}/{postId}` },
+  moderatePost
+);
 
-    if (!title || !message) {
-      throw new Error("Title and message are required");
-    }
+exports.toggleLike = onCall(toggleLike);
 
-    logger.info("Bulk notification started", { title, senderId });
-
-    const db = admin.firestore();
-    const snapshot = await db.collection(TOKENS_COLLECTION).get();
-
-    if (snapshot.empty) {
-      throw new Error("No users found");
-    }
-
-    const tokens = [];
-    let excludedSender = null;
-
-    snapshot.forEach((doc) => {
-      const userId = doc.id;
-      const userData = doc.data();
-
-      if (senderId && userId === senderId) {
-        excludedSender = userData.email || userId;
-        logger.info("Excluded sender", { userId, email: excludedSender });
-      } else if (userData.token) {
-        tokens.push(userData.token);
-      }
-    });
-
-    if (tokens.length === 0) {
-      throw new Error("No valid recipients found");
-    }
-
-    const payload = {
-      notification: { title, body: message },
-      data: {
-        ...data,
-        timestamp: Date.now().toString(),
-        type: "bulk",
-      },
-      tokens,
-    };
-
-    const result = await admin.messaging().sendEachForMulticast(payload);
-
-    logger.info("Bulk notification completed", {
-      success: result.successCount,
-      failed: result.failureCount,
-      total: tokens.length,
-    });
-
-    return {
-      success: true,
-      sent: result.successCount,
-      failed: result.failureCount,
-      total: tokens.length,
-      excluded: excludedSender,
-    };
-  } catch (error) {
-    logger.error("Bulk notification failed", error);
-    throw new Error(error.message);
-  }
-});
-
+exports.getPosts = onCall(getPosts);

@@ -170,6 +170,8 @@ const usePosts = (userId: string): UsePostsReturn => {
         imageName: data.imageName,
         title: data.title.trim(),
         content: data.content.trim(),
+        likesCount: 0,
+        liked:false,
         createdAt: now,
         updatedAt: now,
       };
@@ -181,6 +183,7 @@ const usePosts = (userId: string): UsePostsReturn => {
         title: data.title.trim(),
         username: user.user?.name ?? user.user?.email ?? userId,
         content: data.content.trim(),
+        likesCount: 0,
         createdAt: now,
         updatedAt: now,
       };
