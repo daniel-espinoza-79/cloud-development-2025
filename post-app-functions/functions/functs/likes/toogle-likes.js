@@ -1,11 +1,15 @@
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const { POSTS_COLLECTION } = require("../../config");
+const {
+  sendLikeNotification,
+} = require("../notifications/sendLikeNotifications");
 
 async function toggleLike(request) {
   try {
     const { postId } = request.data;
     const userId = request.auth?.uid;
+    const userName = request.auth?.displayName;
 
     if (!userId) {
       throw new Error("Authentication required");
@@ -19,7 +23,6 @@ async function toggleLike(request) {
 
     const postRef = db.collection(POSTS_COLLECTION).doc(postId);
     const userLikesRef = db.collection("user_likes").doc(userId);
-
 
     const result = await db.runTransaction(async (transaction) => {
       const postDoc = await transaction.get(postRef);
@@ -38,7 +41,6 @@ async function toggleLike(request) {
       const currentLikesCount = postData.likesCount || 0;
 
       if (hasLiked) {
-        // Quitar like
         transaction.update(postRef, {
           likesCount: Math.max(0, currentLikesCount - 1),
         });
@@ -73,7 +75,11 @@ async function toggleLike(request) {
 
         if (postData.userId !== userId) {
           setTimeout(
-            () => sendLikeNotification(postData.userId, userId, postId),
+            () =>
+            {
+              logger.info(`Sending like notification for post ${postId} by user ${userId} with owner ${postData.userId} with name ${userName}`);
+              sendLikeNotification(postData.userId, userId, userName, postId);
+            },
             100
           );
         }

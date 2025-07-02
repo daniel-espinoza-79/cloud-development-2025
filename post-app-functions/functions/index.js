@@ -9,9 +9,7 @@
 
 const { setGlobalOptions } = require("firebase-functions");
 const { onCall } = require("firebase-functions/v2/https");
-const { onRequest } = require("firebase-functions/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const { moderatePost } = require("./functs/moderations/postModerator");
 const {sendBulkNotification} = require("./functs/notifications/sendBulkNotifications");
@@ -31,8 +29,6 @@ admin.initializeApp();
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
 setGlobalOptions({ maxInstances: 10 });
-
-
 
 exports.sendBulkNotification = onCall(sendBulkNotification);
 
