@@ -9,7 +9,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { db } from "@/config/firebase.config";
-import type {  Profile, UpdateUserProfileData } from "@/types/auth.types";
+import type { Profile, UpdateUserProfileData } from "@/types/auth.types";
 
 export class UserProfileService {
   private readonly COLLECTION_NAME = "users-profile";
@@ -55,7 +55,7 @@ export class UserProfileService {
           id: userId,
           address: data.address,
           birthDate: data.birthDate?.toDate(),
-          age : data.age,
+          age: data.age,
           phone: data.phone,
         };
       } else {
@@ -72,12 +72,11 @@ export class UserProfileService {
     profileData: UpdateUserProfileData
   ): Promise<Profile> {
     try {
-
       const userProfileRef = doc(db, this.COLLECTION_NAME, userId);
 
       const docSnap = await getDoc(userProfileRef);
       if (!docSnap.exists()) {
-       return await this.createUserProfile(userId, profileData);
+        return await this.createUserProfile(userId, profileData);
       }
 
       const age = profileData.birthDate
@@ -92,6 +91,7 @@ export class UserProfileService {
 
       await updateDoc(userProfileRef, updateData);
       const updatedProfile = await this.getUserProfile(userId);
+      console.log(updatedProfile);
 
       if (!updatedProfile) {
         throw new Error("Failed to retrieve updated profile");
@@ -136,6 +136,7 @@ export class UserProfileService {
   async ensureUserProfile(userId: string): Promise<Profile> {
     try {
       let profile = await this.getUserProfile(userId);
+      console.log(profile);
 
       if (!profile) {
         profile = await this.createUserProfile(userId, {});

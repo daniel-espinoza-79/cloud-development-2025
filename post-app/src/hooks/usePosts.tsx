@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { db } from "@/config/firebase.config";
+import { db, functions } from "@/config/firebase.config";
+import { httpsCallable } from "firebase/functions";
 import type { PostFormData } from "@/schemas/posts.schemas";
 import type { Post } from "@/types/posts.types";
 import {
@@ -7,16 +8,13 @@ import {
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
-  orderBy,
-  query,
   Timestamp,
-  where,
-  getDocs,
 } from "firebase/firestore";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { fileService } from "@/services/FileService";
+import useFirebaseNotifications from "./useFirebaseNotifications";
+import { usePostsTrigger } from "@/contexts/RefeshPostContext";
 
 interface UsePostsReturn {
   posts: Post[];
@@ -25,6 +23,7 @@ interface UsePostsReturn {
   createPost: (data: PostFormData) => Promise<void>;
   deletePost: (post: Post) => Promise<void>;
   refreshPosts: () => void;
+  toggleLike: (post: Post) => Promise<void>;
 }
 
 const usePosts = (userId: string): UsePostsReturn => {
@@ -32,7 +31,9 @@ const usePosts = (userId: string): UsePostsReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { authState: user } = useAuth();
+  const { triggerValue } = usePostsTrigger();
 
+  const { sendBulkNotifications } = useFirebaseNotifications();
   const resetState = useCallback(() => {
     setPosts([]);
     setLoading(true);
@@ -54,101 +55,23 @@ const usePosts = (userId: string): UsePostsReturn => {
 
     const loadPostsOnce = async () => {
       try {
-        const postsQuery = query(
-          collection(db, "posts"),
-          where("userId", "==", userId),
-          orderBy("createdAt", "desc")
-        );
+        const getPostsFn = httpsCallable(functions, "getPosts");
+        const result = await getPostsFn();
+        const data = result.data as { posts: Post[] };
 
-        const snapshot = await getDocs(postsQuery);
-        const postsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Post[];
-
-        setPosts(postsData);
+        setPosts(data.posts);
         setLoading(false);
       } catch (indexError) {
-        console.warn(
-          "Index query failed, falling back to simpler query:",
-          indexError
+        console.error("Fallback query also failed:", indexError);
+        setError(
+          "Failed to load posts. Please check your connection and try again."
         );
-
-        try {
-          const fallbackQuery = query(
-            collection(db, "posts"),
-            where("userId", "==", userId)
-          );
-
-
-
-
-          const fallbackSnapshot = await getDocs(fallbackQuery);
-          const fallbackData = fallbackSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as Post[];
-          const sortedPosts = fallbackData.sort((a, b) => {
-            const timeA = a.createdAt?.toMillis() || 0;
-            const timeB = b.createdAt?.toMillis() || 0;
-            return timeB - timeA;
-          });
-
-          setPosts(sortedPosts);
-          setLoading(false);
-        } catch (fallbackError) {
-          console.error("Fallback query also failed:", fallbackError);
-          setError(
-            "Failed to load posts. Please check your connection and try again."
-          );
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    let unsubscribe: (() => void) | null = null;
-
-    const setupRealtimeListener = () => {
-      try {
-        const postsQuery = query(
-          collection(db, "posts"),
-          where("userId", "==", userId),
-          orderBy("createdAt", "desc")
-        );
-
-        unsubscribe = onSnapshot(
-          postsQuery,
-          (snapshot) => {
-            const postsData = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })) as Post[];
-
-            setPosts(postsData);
-            setLoading(false);
-            setError(null);
-          },
-          (listenerError) => {
-            console.warn(
-              "Real-time listener failed, using one-time fetch:",
-              listenerError
-            );
-            loadPostsOnce();
-          }
-        );
-      } catch (setupError) {
-        console.warn("Could not setup real-time listener:", setupError);
-        loadPostsOnce();
-      }
-    };
-
-    setupRealtimeListener();
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [userId, resetState]);
+    loadPostsOnce();
+  }, [userId, resetState, triggerValue]);
 
   const createPost = async (data: PostFormData): Promise<void> => {
     if (!userId || !userId.trim()) {
@@ -170,6 +93,8 @@ const usePosts = (userId: string): UsePostsReturn => {
         imageName: data.imageName,
         title: data.title.trim(),
         content: data.content.trim(),
+        likesCount: 0,
+        liked: false,
         createdAt: now,
         updatedAt: now,
       };
@@ -181,6 +106,7 @@ const usePosts = (userId: string): UsePostsReturn => {
         title: data.title.trim(),
         username: user.user?.name ?? user.user?.email ?? userId,
         content: data.content.trim(),
+        likesCount: 0,
         createdAt: now,
         updatedAt: now,
       };
@@ -193,6 +119,20 @@ const usePosts = (userId: string): UsePostsReturn => {
         };
       }
       const docRef = await addDoc(collection(db, "posts"), dataToSave);
+      console.log("Post created with ID:", docRef.id);
+
+      await sendBulkNotifications(
+        `New post from ${dataToSave.username}`,
+        dataToSave.title.length > 50
+          ? `${dataToSave.title.substring(0, 50)}...`
+          : dataToSave.title,
+        {
+          postId: docRef.id,
+          authorId: dataToSave.userId,
+          authorName: dataToSave.username,
+          type: "NEW_POST",
+        }
+      );
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
@@ -232,6 +172,38 @@ const usePosts = (userId: string): UsePostsReturn => {
     }
   };
 
+  const toggleLike = async (post: Post): Promise<void> => {
+    if (!post?.id) {
+      throw new Error("Post ID is required");
+    }
+
+    const postId = post.id;
+    const originalPosts = [...posts];
+
+    try {
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => (p.id === postId ? { ...p, liked: !p.liked } : p))
+      );
+
+      const callable = httpsCallable(functions, "toggleLike");
+      const result = await callable({ postId });
+
+      const { liked, likesCount } = result.data as {
+        liked: boolean;
+        likesCount: number;
+      };
+      setPosts((prevPosts) =>
+        prevPosts.map((p) =>
+          p.id === postId ? { ...p, liked, likesCount } : p
+        )
+      );
+    } catch (error) {
+      setPosts(originalPosts);
+      console.error("Error toggling like:", error);
+      throw new Error("Failed to toggle like. Please try again.");
+    }
+  };
+
   return {
     posts,
     loading,
@@ -239,6 +211,7 @@ const usePosts = (userId: string): UsePostsReturn => {
     createPost,
     deletePost,
     refreshPosts,
+    toggleLike,
   };
 };
 

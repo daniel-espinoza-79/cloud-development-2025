@@ -15,6 +15,7 @@ import type {
   SocialProvider,
   User,
 } from "@/types/auth.types";
+import { Toaster } from "sonner";
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (firebaseUser: FirebaseUser | null) => {
+        console.log("User state changed:", firebaseUser);
         if (firebaseUser) {
           const user = await authService.getCurrentUser();
           setAuthState({
@@ -228,6 +230,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         updateUserProfile,
       }}
     >
+      <Toaster position="top-right" richColors />
       {children}
     </AuthContext.Provider>
   );

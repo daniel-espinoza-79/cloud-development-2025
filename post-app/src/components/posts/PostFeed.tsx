@@ -15,7 +15,7 @@ const PostFeed = () => {
     authState: { user },
   } = useAuth();
 
-  const { posts, loading, error, createPost, deletePost } = usePosts(
+  const { posts, loading, error, createPost, deletePost, toggleLike } = usePosts(
     user?.id || ""
   );
 
@@ -53,6 +53,7 @@ const PostFeed = () => {
         posts={posts}
         onDeletePost={handleDeletePost}
         onCreateClick={openCreateDialog}
+        onToggleLike={toggleLike}
       />
 
       <Dialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)}>

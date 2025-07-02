@@ -6,9 +6,15 @@ interface PostsListProps {
   posts: Post[];
   onDeletePost: (post: Post) => void;
   onCreateClick: () => void;
+  onToggleLike: (post: Post) => Promise<void>;
 }
 
-const PostsList = ({ posts, onDeletePost, onCreateClick }: PostsListProps) => {
+const PostsList = ({
+  posts,
+  onDeletePost,
+  onCreateClick,
+  onToggleLike,
+}: PostsListProps) => {
   if (posts.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -20,7 +26,12 @@ const PostsList = ({ posts, onDeletePost, onCreateClick }: PostsListProps) => {
   return (
     <div className="space-y-4">
       {posts.map((post: Post) => (
-        <PostCard key={post.id} post={post} onDelete={onDeletePost} />
+        <PostCard
+          key={post.id}
+          post={post}
+          onDelete={onDeletePost}
+          toogleLike={onToggleLike}
+        />
       ))}
     </div>
   );
