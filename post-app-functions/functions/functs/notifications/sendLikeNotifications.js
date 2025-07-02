@@ -1,8 +1,8 @@
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
-const { TOKENS_COLLECTION, NOTIFICATIONS } = require("../../config");
+const { TOKENS_COLLECTION } = require("../../config");
 
-async function sendLikeNotification(postOwnerId, likerId, userName, postId) {
+async function sendLikeNotification(postOwnerId, likerId, username,postId) {
   try {
     const db = admin.firestore();
     var fcmToken = null;
@@ -16,7 +16,7 @@ async function sendLikeNotification(postOwnerId, likerId, userName, postId) {
       fcmToken = docSnap.data()?.token;
     }
 
-    const likerName = userName ?? "Someone";
+    const likerName = username ?? "Someone";
 
     if (!fcmToken) {
       logger.warn(`No FCM token available for user ${postOwnerId}`);
@@ -33,6 +33,8 @@ async function sendLikeNotification(postOwnerId, likerId, userName, postId) {
         type: "like",
         postId: postId,
         likerId: likerId,
+        title: "New Like! ❤️",
+        body: `${likerName} liked your post`,
         timestamp: Date.now().toString(),
       }
     };
@@ -40,16 +42,6 @@ async function sendLikeNotification(postOwnerId, likerId, userName, postId) {
 
     const response = await admin.messaging().send(message);
     logger.info(`Push notification sent successfully:`, response);
-
-    await db.collection(NOTIFICATIONS).add({
-      userId: postOwnerId,
-      type: "like",
-      fromUserId: likerId,
-      postId: postId,
-      message: `${likerName} liked your post`,
-      read: false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
 
     logger.info("Like notification sent successfully");
   } catch (error) {

@@ -15,6 +15,7 @@ import type {
   SocialProvider,
   User,
 } from "@/types/auth.types";
+import { Toaster } from "sonner";
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -229,6 +230,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         updateUserProfile,
       }}
     >
+      <Toaster position="top-right" richColors />
       {children}
     </AuthContext.Provider>
   );

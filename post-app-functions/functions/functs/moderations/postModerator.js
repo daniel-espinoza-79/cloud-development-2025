@@ -2,6 +2,9 @@ const admin = require("firebase-admin");
 const logger = require("firebase-functions/logger");
 const { moderateText } = require("./textModerator");
 const {
+  sendUserPostModerationNotification,
+} = require("../notifications/sendUserModerationNotification");
+const {
   POSTS_COLLECTION,
   MODERATION_LOGS_COLLECTION,
 } = require("../../config");
@@ -62,7 +65,7 @@ async function moderatePost(event) {
 
       await createModerationLog(postId, postData, moderatedFields, updateData);
 
-      await notifyUserAboutModeration(
+      await sendUserPostModerationNotification(
         postData.user_id,
         postId,
         moderatedFields
@@ -72,21 +75,6 @@ async function moderatePost(event) {
     }
   } catch (error) {
     logger.error(`Error moderating post ${event.params.postId}:`, error);
-
-    try {
-      const postRef = admin
-        .firestore()
-        .collection(POSTS_COLLECTION)
-        .doc(event.params.postId);
-      await postRef.update({
-        moderation_error: true,
-        moderation_error_message: error.message,
-        moderation_error_at: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    } catch (updateError) {
-      logger.error("Failed to update post with error status:", updateError);
-    }
-
     throw error;
   }
 }
@@ -127,33 +115,7 @@ async function createModerationLog(
   }
 }
 
-async function notifyUserAboutModeration(userId, postId, moderatedFields) {
-  if (!userId) return;
-
-  try {
-    await admin
-      .firestore()
-      .collection("user_notifications")
-      .add({
-        user_id: userId,
-        type: "post_moderated",
-        title: "Contenido Moderado",
-        message: `Tu publicación ha sido moderada automáticamente. Campos afectados: ${moderatedFields.join(
-          ", "
-        )}`,
-        post_id: postId,
-        created_at: admin.firestore.FieldValue.serverTimestamp(),
-        read: false,
-      });
-
-    logger.info(`Moderation notification sent to user: ${userId}`);
-  } catch (error) {
-    logger.error("Failed to send moderation notification:", error);
-  }
-}
-
 module.exports = {
   moderatePost,
   createModerationLog,
-  notifyUserAboutModeration,
 };

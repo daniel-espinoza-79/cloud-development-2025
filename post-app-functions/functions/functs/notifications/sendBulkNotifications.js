@@ -43,6 +43,8 @@ async function sendBulkNotification(request) {
       data: {
         ...data,
         timestamp: Date.now().toString(),
+        title: title,
+        message: message,
         type: "bulk",
       },
       tokens,

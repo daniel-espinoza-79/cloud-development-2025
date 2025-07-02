@@ -9,7 +9,9 @@ async function toggleLike(request) {
   try {
     const { postId } = request.data;
     const userId = request.auth?.uid;
-    const userName = request.auth?.displayName;
+    const userName =  request.auth.token.email.split("@")[0] ||
+       request.auth.token.name ||
+      "User";
 
     if (!userId) {
       throw new Error("Authentication required");
@@ -74,16 +76,8 @@ async function toggleLike(request) {
         );
 
         if (postData.userId !== userId) {
-          setTimeout(
-            () =>
-            {
-              logger.info(`Sending like notification for post ${postId} by user ${userId} with owner ${postData.userId} with name ${userName}`);
-              sendLikeNotification(postData.userId, userId, userName, postId);
-            },
-            100
-          );
+          await sendLikeNotification(postData.userId, userId, userName, postId);
         }
-
         return { liked: true, likesCount: currentLikesCount + 1 };
       }
     });

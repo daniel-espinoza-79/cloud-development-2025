@@ -16,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
+
         <RefreshPostProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

@@ -8,11 +8,7 @@ import {
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
-  orderBy,
-  query,
   Timestamp,
-  where,
 } from "firebase/firestore";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "./useAuth";
@@ -74,48 +70,7 @@ const usePosts = (userId: string): UsePostsReturn => {
       }
     };
 
-    let unsubscribe: (() => void) | null = null;
-
-    const setupRealtimeListener = () => {
-      try {
-        const postsQuery = query(
-          collection(db, "posts"),
-          where("userId", "==", userId),
-          orderBy("createdAt", "desc")
-        );
-
-        unsubscribe = onSnapshot(
-          postsQuery,
-          (snapshot) => {
-            const postsData = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })) as Post[];
-
-            setPosts(postsData);
-            setLoading(false);
-            setError(null);
-          },
-          (listenerError) => {
-            console.warn(
-              "Real-time listener failed, using one-time fetch:",
-              listenerError
-            );
-            loadPostsOnce();
-          }
-        );
-      } catch (setupError) {
-        console.warn("Could not setup real-time listener:", setupError);
-        loadPostsOnce();
-      }
-    };
-
-    setupRealtimeListener();
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    loadPostsOnce();
   }, [userId, resetState, triggerValue]);
 
   const createPost = async (data: PostFormData): Promise<void> => {
@@ -237,8 +192,6 @@ const usePosts = (userId: string): UsePostsReturn => {
         liked: boolean;
         likesCount: number;
       };
-
-      // Optionally update likesCount after backend response
       setPosts((prevPosts) =>
         prevPosts.map((p) =>
           p.id === postId ? { ...p, liked, likesCount } : p

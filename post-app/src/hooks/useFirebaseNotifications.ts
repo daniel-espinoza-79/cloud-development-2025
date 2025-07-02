@@ -6,6 +6,7 @@ import { getToken, onMessage, type MessagePayload } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { usePostsTrigger } from "@/contexts/RefeshPostContext";
+import notificationHandler from "@/services/NotificationHandler";
 
 export interface useFirebaseNotificationsReturn {
   token: string | null;
@@ -107,10 +108,16 @@ const useFirebaseNotifications = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
-      setThereAreNewPosts?.(true);
-      console.log("Message received in foreground:", payload);
-    });
+    const unsubscribe = onMessage(
+      messaging,
+      async (payload: MessagePayload) => {
+        console.log ("Notification received:", payload);
+        if (payload.data?.type === "bulk") {
+          setThereAreNewPosts?.(true);
+        }
+        await notificationHandler(payload);
+      }
+    );
 
     return () => {
       unsubscribe();
