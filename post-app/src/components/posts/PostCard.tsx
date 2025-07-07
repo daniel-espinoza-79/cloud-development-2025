@@ -1,12 +1,14 @@
 import type { Post } from "@/types/posts.types";
 import PostHeader from "./PostHeader";
+import { Button } from "@/components/ui/Button";
 
 interface PostCardProps {
   post: Post;
   onDelete: (post: Post) => void;
+  toogleLike: (post: Post) => Promise<void>;
 }
 
-const PostCard = ({ post, onDelete }: PostCardProps) => {
+const PostCard = ({ post, onDelete, toogleLike }: PostCardProps) => {
   return (
     <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 mb-4">
       <PostHeader post={post} onDelete={onDelete} />
@@ -19,17 +21,24 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
           {post.content}
         </p>
       </div>
-      {post.imageUrl &&
+      {post.imageUrl && (
         <div className="relative bg-gray-100">
           <img
-            src={
-              post.imageUrl
-            }
+            src={post.imageUrl}
             alt="Post content"
             className="w-full h-[500px] object-contain"
           />
         </div>
-      }
+      )}
+      <div className="p-4">
+        <Button
+          variant={post.liked === true ? "primary" : "ghost"}
+          size="sm"
+          onClick={() => toogleLike(post)}
+        >
+          {post.liked === true ? "Liked" : "Like"}
+        </Button>
+      </div>
     </article>
   );
 };

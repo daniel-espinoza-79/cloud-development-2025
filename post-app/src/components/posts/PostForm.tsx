@@ -81,25 +81,25 @@ const PostForm = ({ onSubmit, onCancel }: PostFormProps) => {
   return (
     <div className="p-6 max-w-lg mx-auto">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-        Crear nueva publicación
+        Create a Post
       </h2>
 
       <div className="space-y-6">
         <Input
-          label="Título *"
+          label="Title *"
           error={errors.title?.message}
           {...register("title")}
           id="title"
-          placeholder="¿Qué quieres compartir?"
+          placeholder="¿What's on your mind?"
           type="text"
         />
 
         <TextArea
-          label="Contenido *"
+          label="Content *"
           error={errors.content?.message}
           {...register("content")}
           id="content"
-          placeholder="Escribe tu contenido aquí..."
+          placeholder="Write something..."
           className="min-h-[120px]"
         />
 
@@ -128,10 +128,10 @@ const PostForm = ({ onSubmit, onCancel }: PostFormProps) => {
           {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              {selectedImage ? "Subiendo..." : "Creando..."}
+              {selectedImage ? "Uploading..." : "Publishing..."}
             </>
           ) : (
-            "Publicar"
+            "Publish"
           )}
         </Button>
       </div>

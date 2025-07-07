@@ -13,27 +13,38 @@ importScripts(
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
 firebase.initializeApp({
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
 });
-
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  console.log("Service Worker: Background message received:", payload);
 
-  const notificationTitle = payload.notification?.title || "New Message";
+messaging.onBackgroundMessage((payload) => {
+  console.log(
+    "[firebase-messaging-sw.js] Received background message ",
+    payload
+  );
+
+  const notificationTitle =
+    payload.notification?.title || payload.data.title || "New Message";
+
   const notificationOptions = {
-    body: payload.notification?.body || "You have a new message",
+    body:
+      payload.notification?.body ||
+      payload.data.body ||
+      "You have a new message",
     icon: "/vite.svg",
     badge: "/vite.svg",
+    tag: payload.data.tag || "default-tag",
     data: payload.data,
+    actions: [
+      { action: "open", title: "Open" },
+      { action: "close", title: "Close" },
+    ],
+    data: {
+      url: payload.data.url || "/",
+      postId: payload.data.postId,
+      ...payload.data,
+    },
   };
 
   console.log("Service Worker: Showing notification:", notificationTitle);
@@ -41,20 +52,4 @@ messaging.onBackgroundMessage((payload) => {
     notificationTitle,
     notificationOptions
   );
-});
-
-self.addEventListener("notificationclick", (event) => {
-  console.log("Service Worker: Notification clicked");
-  event.notification.close();
-  event.waitUntil(clients.openWindow("/"));
-});
-
-self.addEventListener("install", (event) => {
-  console.log("Service Worker: Installing...");
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", (event) => {
-  console.log("Service Worker: Activating...");
-  event.waitUntil(self.clients.claim());
 });
