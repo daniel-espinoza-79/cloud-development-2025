@@ -11,12 +11,14 @@ import GenrePage from "./pages/genres/GenrePage.tsx";
 import ArtistPage from "./pages/artists.tsx/ArtistPage.tsx";
 import SongsPage from "./pages/songs/SongsPage.tsx";
 import { Toaster } from "react-hot-toast";
+import UserRolePage from "./pages/user-roles/UserRolePage.tsx";
+import UserProfile from "./components/auth/UserProfile.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <Toaster  position="top-right" />
+        <Toaster position="top-right" />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -29,11 +31,13 @@ createRoot(document.getElementById("root")!).render(
             }
           >
             <Route index element={<GenrePage />} />
+            <Route path="/profile" element={<UserProfile />} />
             <Route path="/genres/:id" element={<ArtistPage />} />
             <Route
               path="/genres/:genreId/artists/:artistId"
               element={<SongsPage />}
             />
+            <Route path="user-roles" element={<UserRolePage />} />
           </Route>
         </Routes>
       </AuthProvider>

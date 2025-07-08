@@ -6,6 +6,8 @@ import {
   getDocs,
   doc,
   getDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import {
   ref,
@@ -19,7 +21,7 @@ import type { ItemSchemaData } from "@/schemas/genre.schema";
 import type { IDataService } from "@/hooks/useData";
 import { getFileNameFromUrl, getStoragePathFromUrl } from "@/utils/url.utils";
 
-const COLLECTION_NAME = import.meta.env.VITE_FIREBASE_ARTISTS_COLLECTION_NAME;
+const COLLECTION_NAME = import.meta.env.VITE_FIREBASE_ARTISTS_COLLECTION;
 
 class ArtistService implements IDataService<Artist, ItemSchemaData>  {
   genreId: string
@@ -125,7 +127,12 @@ class ArtistService implements IDataService<Artist, ItemSchemaData>  {
 
   async fetchData(): Promise<Artist[]> {
     try {
-      const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where("genreId", "==", this.genreId)
+      );
+  
+      const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         imageName: getFileNameFromUrl(doc.data().imageUrl),

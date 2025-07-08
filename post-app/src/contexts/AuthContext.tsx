@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { createContext, useState, useEffect, type ReactNode } from "react";
 import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/config/firebase.config";
 import { authService } from "@/services/FirebaseAuthService";
@@ -14,6 +9,7 @@ import type {
   SocialProvider,
   User,
 } from "@/types/auth.types";
+import { userRoleService } from "@/services/UserRoleService";
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -21,7 +17,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -31,20 +27,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resolutionMessage: null,
   });
 
-  useEffect(() => {
+  const handleUserAuthenticated = async () => {
+    const user = await authService.getCurrentUser();
+    setAuthState({
+      user,
+      isLoading: false,
+      isAuthenticated: true,
+      error: null,
+      resolutionMessage: "User signed in successfully",
+    });
+  };
 
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser: FirebaseUser | null) => {
         if (firebaseUser) {
-          const user = authService.getCurrentUser();
-          setAuthState({
-            user,
-            isLoading: false,
-            isAuthenticated: true,
-            error: null,
-            resolutionMessage: "User signed in successfully",
-          });
+          handleUserAuthenticated();
         } else {
           setAuthState({
             user: null,
@@ -79,6 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const user = await authService.registerWithEmail(name, email, password);
       if (user) {
+        await userRoleService.createUserRole(user.id, email, "user");
         setUser(user);
       } else {
         setNullUser();
@@ -129,13 +129,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }));
   };
 
-  const loginWithProvider = async (provider: SocialProvider) => {
+  const loginWithProvider = async (
+    provider: SocialProvider,
+    operation: "login" | "register" = "login"
+  ) => {
     setLoading(true);
     clearError();
 
     try {
       const user = await authService.loginWithProvider(provider);
       if (user) {
+        if (operation === "register") {
+          await userRoleService.createUserRole(user.id, user.email, "user");
+        }
         setUser(user);
       } else {
         setNullUser();
@@ -164,7 +170,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       setNullUser();
       setError(
-        error instanceof Error ? error.message : `Error while linking ${provider}`
+        error instanceof Error
+          ? error.message
+          : `Error while linking ${provider}`
       );
     }
   };

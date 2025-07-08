@@ -17,6 +17,7 @@ import {
   facebookProvider,
 } from "@/config/firebase.config";
 import type { User, SocialProvider } from "@/types/auth.types";
+import { userRoleService } from "./UserRoleService";
 
 export class FirebaseAuthService {
 
@@ -114,9 +115,13 @@ export class FirebaseAuthService {
   }
 
 
-  getCurrentUser(): User | null {
+  async getCurrentUser(): Promise<User | null> {
     const firebaseUser = auth.currentUser;
-    return firebaseUser ? this.mapFirebaseUserToUser(firebaseUser) : null;
+    const user = firebaseUser ? this.mapFirebaseUserToUser(firebaseUser) : null;
+   if (user) {
+      user.isAdmin = await userRoleService.isUserAdmin(user.id);
+    }
+    return user;
   }
 
   async logout(): Promise<void> {

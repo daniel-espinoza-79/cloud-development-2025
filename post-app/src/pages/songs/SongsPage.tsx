@@ -4,6 +4,7 @@ import AlertDialog from "@/components/ui/AlertDialog";
 import { Button } from "@/components/ui/Button";
 import GridContainer from "@/components/ui/GridContainer";
 import ActionDialog from "@/components/wrappers/ActionDialog";
+import { useAuth } from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 import type { SongFormData } from "@/schemas/song.schema";
 import SongService from "@/services/SongDataService";
@@ -14,6 +15,9 @@ import { useLocation, useNavigate, useParams } from "react-router";
 const SongsPage = () => {
   const { genreId, artistId } = useParams();
   const location = useLocation();
+  const {
+    authState: { user },
+  } = useAuth();
   const artist = location.state?.artist;
   const navigate = useNavigate();
 
@@ -50,17 +54,17 @@ const SongsPage = () => {
           </h2>
 
           <ActionDialog
-            isVisible
+            isVisible={user?.isAdmin ?? false}
             isOpen={isOpen}
             setIsOpen={handleIsOpenChange}
           >
             <button>action button</button>
-          <SongForm
-            onClose={handleCancelForm}
-            onSubmit={handleSubmit}
-            initialValue={defaultData}
-            entryName="Artist"
-          /> 
+            <SongForm
+              onClose={handleCancelForm}
+              onSubmit={handleSubmit}
+              initialValue={defaultData}
+              entryName="Artist"
+            />
           </ActionDialog>
         </div>
         <GridContainer>
@@ -68,7 +72,7 @@ const SongsPage = () => {
             <SongCard
               key={song.id}
               song={song}
-              isEditable={true}
+              isEditable={user?.isAdmin ?? false}
               onStartDelete={handleStartDelete}
               onStartEdit={handleStartEdit}
             />

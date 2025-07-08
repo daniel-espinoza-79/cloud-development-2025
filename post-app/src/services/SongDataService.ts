@@ -6,6 +6,8 @@ import {
   getDocs,
   doc,
   getDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import {
   ref,
@@ -20,7 +22,7 @@ import type { IDataService } from "@/hooks/useData";
 import { getFileNameFromUrl, getStoragePathFromUrl } from "@/utils/url.utils";
 import type { SongFormData } from "@/schemas/song.schema";
 
-const COLLECTION_NAME = import.meta.env.VITE_FIREBASE_SONGS_COLLECTION_NAME;
+const COLLECTION_NAME = import.meta.env.VITE_FIREBASE_SONGS_COLLECTION;
 
 class SongService implements IDataService<Song, ItemSchemaData> {
   artistId: string;
@@ -132,7 +134,11 @@ class SongService implements IDataService<Song, ItemSchemaData> {
 
   async fetchData(): Promise<Song[]> {
     try {
-      const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where("artistId", "==", this.artistId)
+      );
+      const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         audioFimeName: getFileNameFromUrl(doc.data().audioUrl),

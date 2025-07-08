@@ -2,8 +2,12 @@ import React from "react";
 import { List } from "lucide-react";
 
 import { Link } from "react-router";
+import { useAuth } from "@/hooks/useAuth";
 
 const Menu = () => {
+  const {
+    authState: { user },
+  } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -25,6 +29,7 @@ const Menu = () => {
 
           <div className="hidden sm:flex sm:space-x-6 ">
             <Link to="/">Home</Link>
+            {user?.isAdmin && <Link to="/user-roles">Users Management</Link>}
             <Link to="/profile">Profile</Link>
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
@@ -35,6 +40,7 @@ const Menu = () => {
       {isOpen && (
         <div className="sm:hidden px-4 pb-3 space-y-2  *:block ">
           <Link to="/">Home</Link>
+          {user?.isAdmin && <Link to="/user-roles">Users Management</Link>}
           <Link to="/profile">Profile</Link>
           <Link to="/login">Login</Link>
           <Link to="/register">Register</Link>

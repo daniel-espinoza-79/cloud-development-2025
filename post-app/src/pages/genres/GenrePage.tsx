@@ -7,9 +7,14 @@ import useData from "@/hooks/useData";
 import AlertDialog from "@/components/ui/AlertDialog";
 import { genreService } from "@/services/GenreDataService";
 import ItemForm from "@/components/forms/ItemForm";
+import { useAuth } from "@/hooks/useAuth";
 
 const GenrePage = () => {
   const navigate = useNavigate();
+
+  const {
+    authState: { user },
+  } = useAuth();
   const {
     data,
     isOpen,
@@ -46,7 +51,11 @@ const GenrePage = () => {
       </div>
       <div className="flex justify-between items-center ">
         <h2 className="txt-h2">All Genres</h2>
-        <ActionDialog isVisible isOpen={isOpen} setIsOpen={handleIsOpenChange}>
+        <ActionDialog
+          isVisible={user?.isAdmin ?? false}
+          isOpen={isOpen}
+          setIsOpen={handleIsOpenChange}
+        >
           <ItemForm
             onClose={handleCancelForm}
             onSubmit={handleSubmit}
@@ -60,7 +69,7 @@ const GenrePage = () => {
           <ItemCard
             key={genre.id}
             item={genre}
-            isEditable={true}
+            isEditable={user?.isAdmin ?? false}
             onItemSelect={handleGenreSelect}
             onStartDelete={handleStartDelete}
             onStartEdit={handleStartEdit}

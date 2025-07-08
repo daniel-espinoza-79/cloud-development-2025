@@ -3,6 +3,7 @@ export interface User {
   readonly email: string;
   readonly name: string;
   readonly avatar?: string;
+  isAdmin?: boolean;
   readonly providers: readonly AuthProvider[];
   readonly createdAt: Date;
 }
@@ -35,7 +36,10 @@ export interface AuthContextValue {
     password: string
   ) => Promise<void>;
   readonly login: (email: string, password: string) => Promise<void>;
-  readonly loginWithProvider: (provider: SocialProvider) => Promise<void>;
+  readonly loginWithProvider: (
+    provider: SocialProvider,
+    operation?: "login" | "register"
+  ) => Promise<void>;
   readonly linkProvider: (provider: SocialProvider) => Promise<void>;
   readonly unlinkProvider: (provider: SocialProvider) => Promise<void>;
   readonly logout: () => Promise<void>;

@@ -14,7 +14,6 @@ import {
   registerSchema,
   type RegisterFormData,
 } from "@/validators/auth.schema";
-
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
 }
@@ -38,7 +37,7 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
   });
 
   const handleSocialRegister = async (provider: SocialProvider) => {
-    await loginWithProvider(provider);
+    await loginWithProvider(provider, "register");
   };
 
   const handleFormSubmit = async (data: RegisterFormData) => {
@@ -48,7 +47,9 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <div className="p-8 space-y-6">
-        <h2 className="text-3xl text-center font-bold text-gray-900">Create an account</h2>
+        <h2 className="text-3xl text-center font-bold text-gray-900">
+          Create an account
+        </h2>
         {authState.error && (
           <Alert variant="error" onAbort={clearError}>
             {authState.error}

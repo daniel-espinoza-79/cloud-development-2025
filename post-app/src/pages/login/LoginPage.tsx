@@ -9,7 +9,7 @@ const LoginPage = () => {
   };
 
   return (
-      <Container className="pt-10">
+      <Container className="pt-10 *:text-black">
         <LoginForm onSwitchToRegister={onSwitchToLogin} />
       </Container>
   );

@@ -19,7 +19,7 @@ import type { ItemSchemaData } from "@/schemas/genre.schema";
 import type { IDataService } from "@/hooks/useData";
 import { getFileNameFromUrl, getStoragePathFromUrl } from "@/utils/url.utils";
 
-const COLLECTION_NAME = import.meta.env.VITE_FIREBASE_GENRES_COLLECTION_NAME;
+const COLLECTION_NAME = import.meta.env.VITE_FIREBASE_GENRES_COLLECTION;
 
 export const genreService: IDataService<Genre, ItemSchemaData> = {
   async createData(data: ItemSchemaData): Promise<Genre | null> {

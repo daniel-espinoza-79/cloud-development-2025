@@ -3,6 +3,7 @@ import AlertDialog from "@/components/ui/AlertDialog";
 import { Button } from "@/components/ui/Button";
 import ItemCard from "@/components/ui/ItemCard";
 import ActionDialog from "@/components/wrappers/ActionDialog";
+import { useAuth } from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 import type { ItemSchemaData } from "@/schemas/genre.schema";
 import ArtistService from "@/services/ArtisDataService";
@@ -12,6 +13,9 @@ import { useParams, useNavigate, useLocation } from "react-router";
 
 const ArtistPage = () => {
   const navigate = useNavigate();
+  const {
+    authState: { user },
+  } = useAuth();
   const { id } = useParams();
   const location = useLocation();
   const genre = location.state?.genre;
@@ -51,7 +55,7 @@ const ArtistPage = () => {
         <div className="flex justify-between items-center">
           <h2 className="txt-h2">{genre?.name} Artists</h2>
           <ActionDialog
-            isVisible
+            isVisible={user?.isAdmin ?? false}
             isOpen={isOpen}
             setIsOpen={handleIsOpenChange}
           >
@@ -68,7 +72,7 @@ const ArtistPage = () => {
             <ItemCard
               key={data.id}
               item={data}
-              isEditable
+              isEditable={user?.isAdmin ?? false}
               onItemSelect={handleArtistSelect}
               onStartEdit={handleStartEdit}
               onStartDelete={handleStartDelete}
