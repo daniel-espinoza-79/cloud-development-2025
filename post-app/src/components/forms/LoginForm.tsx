@@ -14,6 +14,7 @@ import { Input } from "../ui/Input";
 import { PasswordInput } from "../ui/PasswordInput";
 import { Button } from "../ui/Button";
 import { SocialButton } from "../auth/SocialButton";
+import AnalyticsService from "@/services/AnalyticService";
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -34,6 +35,7 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
 
   const handleLoginSubmit = async (data: LoginFormData) => {
     await login(data.email, data.password);
+    AnalyticsService.logLogin();
   };
 
   const handleSocialLogin = async (provider: SocialProvider) => {

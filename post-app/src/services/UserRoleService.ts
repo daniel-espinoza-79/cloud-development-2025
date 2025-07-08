@@ -79,9 +79,6 @@ export class UserRoleService implements IUserRoleService {
 
   async isUserAdmin(userId: string): Promise<boolean> {
     try {
-/*       if (userId === "Ffndm6vXGqYpw2dxAGww1kkjAfD2") {
-        return true;
-      } */
       const userRoleDoc = doc(this.collectionRef, userId);
       const docSnapshot = await getDoc(userRoleDoc);
 

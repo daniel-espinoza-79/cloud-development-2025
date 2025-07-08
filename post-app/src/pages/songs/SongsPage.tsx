@@ -19,6 +19,9 @@ const SongsPage = () => {
     authState: { user },
   } = useAuth();
   const artist = location.state?.artist;
+  const genre = location.state?.genreName;
+
+  console.log(artist, genre);
   const navigate = useNavigate();
 
   if (!genreId || !artistId) {
@@ -42,6 +45,7 @@ const SongsPage = () => {
     window.history.back();
   };
 
+
   return (
     <>
       <div>
@@ -58,7 +62,6 @@ const SongsPage = () => {
             isOpen={isOpen}
             setIsOpen={handleIsOpenChange}
           >
-            <button>action button</button>
             <SongForm
               onClose={handleCancelForm}
               onSubmit={handleSubmit}
@@ -72,6 +75,8 @@ const SongsPage = () => {
             <SongCard
               key={song.id}
               song={song}
+              artistName={artist?.name || ""}
+              genreName={genre || ""}
               isEditable={user?.isAdmin ?? false}
               onStartDelete={handleStartDelete}
               onStartEdit={handleStartEdit}

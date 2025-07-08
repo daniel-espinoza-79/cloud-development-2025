@@ -6,6 +6,7 @@ import ActionDialog from "@/components/wrappers/ActionDialog";
 import { useAuth } from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 import type { ItemSchemaData } from "@/schemas/genre.schema";
+import AnalyticsService from "@/services/AnalyticService";
 import ArtistService from "@/services/ArtisDataService";
 import type { Artist } from "@/types/music.types";
 import { MoveLeft } from "lucide-react";
@@ -43,7 +44,10 @@ const ArtistPage = () => {
   };
 
   const handleArtistSelect = (artist: Artist) => {
-    navigate(`/genres/${id}/artists/${artist.id}`, { state: { artist } });
+    AnalyticsService.logSelectArtist(artist.id, artist.name, genre?.name ?? "");
+    navigate(`/genres/${id}/artists/${artist.id}`, {
+      state: { artist, genreName: artist.name },
+    });
   };
 
   return (

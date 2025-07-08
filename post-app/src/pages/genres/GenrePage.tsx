@@ -8,6 +8,7 @@ import AlertDialog from "@/components/ui/AlertDialog";
 import { genreService } from "@/services/GenreDataService";
 import ItemForm from "@/components/forms/ItemForm";
 import { useAuth } from "@/hooks/useAuth";
+import AnalyticsService from "@/services/AnalyticService";
 
 const GenrePage = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const GenrePage = () => {
   } = useData(genreService, [], "Genre");
 
   const handleGenreSelect = (genre: Genre) => {
+    AnalyticsService.logSelectGenre(genre.id, genre.name);
     navigate(`/genres/${genre.id}`, { state: { genre } });
   };
 
