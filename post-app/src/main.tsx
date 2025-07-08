@@ -7,11 +7,16 @@ import { StrictMode } from "react";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import HomePage from "./pages/home/HomePage.tsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
+import GenrePage from "./pages/genres/GenrePage.tsx";
+import ArtistPage from "./pages/artists.tsx/ArtistPage.tsx";
+import SongsPage from "./pages/songs/SongsPage.tsx";
+import { Toaster } from "react-hot-toast";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <Toaster  position="top-right" />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -22,7 +27,14 @@ createRoot(document.getElementById("root")!).render(
                 <HomePage />
               </ProtectedRoute>
             }
-          ></Route>
+          >
+            <Route index element={<GenrePage />} />
+            <Route path="/genres/:id" element={<ArtistPage />} />
+            <Route
+              path="/genres/:genreId/artists/:artistId"
+              element={<SongsPage />}
+            />
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>

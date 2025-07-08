@@ -9,19 +9,112 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --tertiary: #121212; /* TODO : REMOVE COMMENTS HERE */
+  --tertiary-hover: #1f1f1f;
+  --primary: #1db954; /* verde Spotify principal */
+  --primary-hover: #1ed760; /* verde un poco más claro para hover */
+  --secondary: #191414; /* negro Spotify */
+  --secondary-hover: #232323; /* gris más claro para hover */
+  --accent: #1db954; /* puedes usar el mismo verde como acento */
+  --accent-foreground: #ffffff; /* texto encima del acento */
+  --text-primary: #ffffff; /* texto principal en blanco */
+  --text-secondary: #b3b3b3; /* texto secundario en gris claro */
+  --border-color: #282828; /* bordes / divisores */
+  --card-background: #181818;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: white;
   text-decoration: inherit;
 }
 
 a:hover {
-  color: #535bf2;
+  color: var(--primary-hover);
 }
 
 body {
   margin: 0;
   padding: 0;
+  color: var(--text-primary);
+  background-color: #151515;
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-hover: var(--tertiary-hover);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-color: var(--border-color);
+  --color-card-background: var(--card-background);
+
+  --animate-fade-in-up: fade-in-up 0.7s ease-out forwards;
+  --animate-fade-in-stagger: fade-in-stagger 0.5s ease-out forwards;
+  --animate-scale-line: scale-line 1s ease-out 0.3s forwards;
+}
+
+@layer utilities {
+  .absolute-center {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  .form-label{
+    @apply block text-sm font-medium text-gray-200 my-2;
+  }
+
+  .primary-text-gradient{
+    @apply bg-gradient-to-r from-white to-primary bg-clip-text text-transparent;
+  }
+
+  .txt-h2 {
+    @apply text-2xl font-bold my-5;
+  }
+
+  .animate-header-fade-in {
+    opacity: 0;
+    animation: var(--animate-fade-in-up);
+  }
+
+  .text-line-gradient {
+    @apply bg-gradient-to-r from-text-primary to-primary;
+  }
+}
+
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-stagger {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }

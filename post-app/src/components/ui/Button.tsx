@@ -6,7 +6,8 @@ export type ButtonVariant =
   | "secondary"
   | "outline"
   | "ghost"
-  | "destructive";
+  | "destructive"
+  | "none";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps
@@ -16,7 +17,6 @@ export interface ButtonProps
   readonly isLoading?: boolean;
   readonly leftIcon?: React.ReactNode;
 }
-
 
 export const Button = ({
   children,

@@ -1,6 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import { INPUT_STYLES, DESIGN_TOKENS } from "@/constants/design.constants";
 import { cn } from "@/utils/classNames.utils";
+import Label from "./Label";
 
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -8,6 +9,7 @@ export interface InputProps
   readonly error?: string;
   readonly leftIcon?: React.ReactNode;
   readonly rightIcon?: React.ReactNode;
+  readonly required?: boolean;
 }
 
 export const Input = ({
@@ -17,6 +19,7 @@ export const Input = ({
   rightIcon,
   className,
   id,
+  required = false,
   ...props
 }: InputProps) => {
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
@@ -24,12 +27,9 @@ export const Input = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700"
-        >
+        <Label htmlFor={inputId} required={required}>
           {label}
-        </label>
+        </Label>
       )}
       <div className="relative">
         {leftIcon && (
@@ -42,8 +42,8 @@ export const Input = ({
           className={cn(
             INPUT_STYLES.base,
             error ? INPUT_STYLES.variants.error : INPUT_STYLES.variants.default,
-            leftIcon && "pl-10",
-            rightIcon && "pr-10",
+            leftIcon ? "pl-10" : undefined,
+            rightIcon ? "pr-10" : undefined,
             DESIGN_TOKENS.radius.md,
             className
           )}

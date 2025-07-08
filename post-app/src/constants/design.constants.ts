@@ -20,14 +20,15 @@ export const DESIGN_TOKENS = {
 } as const;
 
 export const BUTTON_STYLES = {
-  base: "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+  base: "inline-flex items-center justify-center font-medium transition-colors focus:outline-none  disabled:opacity-50 disabled:pointer-events-none",
   variants: {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+    primary: "bg-primary text-white hover:bg-primary-hover cursor-pointer",
     secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
     outline:
       "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500",
-    ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
+    ghost: "text-gray-300 hover:text-primary cursor-pointer ring-none focus:ring-0 focus:outline-none",
     destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+    none: "ring-0 focus:ring-0 focus:outline-none cursor-pointer",
   },
   sizes: {
     sm: "h-9 px-3 text-xs",
@@ -37,9 +38,9 @@ export const BUTTON_STYLES = {
 } as const;
 
 export const INPUT_STYLES = {
-  base: "w-full h-10 px-3 border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50",
+  base: "w-full h-10 px-3 border transition-colors focus:outline-none disabled:opacity-50",
   variants: {
-    default: "border-gray-300 focus:border-blue-500",
+    default: "border-gray-300 focus:border-primary",
     error: "border-red-300 focus:border-red-500 focus:ring-red-500",
   },
 } as const;
@@ -54,7 +55,7 @@ export const CARD_STYLES = {
 } as const;
 
 export const ALERT_STYLES = {
-  base: "flex items-start gap-3 p-4 rounded-lg border",
+  base: "flex items-start gap-3 p-4 rounded-lg border cursor-pointer",
   variants: {
     success: "bg-green-50 border-green-200 text-green-800",
     error: "bg-red-50 border-red-200 text-red-800",
